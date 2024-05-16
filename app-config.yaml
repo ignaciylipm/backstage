@@ -1,0 +1,115 @@
+app:
+  title: Scaffolded Backstage App
+  baseUrl: http://localhost:3000
+
+organization:
+  name: My Company
+
+backend:
+  # Used for enabling authentication, secret is shared by all backend plugins
+  # See https://backstage.io/docs/auth/service-to-service-auth for
+  # information on the format
+  # auth:
+  #   keys:
+  #     - secret: ${BACKEND_SECRET}
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    # host: 127.0.0.1
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+  cors:
+    origin: http://localhost:3000
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  # This is for local development only, it is not recommended to use this in production
+  # The production database configuration is stored in app-config.production.yaml
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
+  auth:
+    keys:
+      - secret: ymJESaBHF0nM1mebYhiIKY0vjEWzV3k0
+
+
+integrations:
+  github:
+    - host: github.com
+      # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
+      # about setting up the GitHub integration here: https://backstage.io/docs/integrations/github/locations#configuration
+    ### Example for how to add your GitHub Enterprise instance using the API:
+    # - host: ghe.example.net
+    #   apiBaseUrl: https://ghe.example.net/api/v3
+    #   token: ${GHE_TOKEN}
+
+
+proxy:
+  ### Example for how to add a proxy endpoint for the frontend.
+  ### A typical reason to do this is to handle HTTPS and CORS for internal services.
+  # endpoints:
+  #   '/test':
+  #     target: 'https://example.com'
+  #     changeOrigin: true
+
+# Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# Note: After experimenting with basic setup, use CI/CD to generate docs
+# and an external cloud storage when deploying TechDocs for production use-case.
+# https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'docker' # Alternatives - 'local'
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+auth:
+  environment: development
+  providers:
+    guest: {}
+    gitlab:
+      development:
+        clientId: c9998321fe8cd1f918be771161e0895315c4f9a42b905de85cef6d301867cb17
+        clientSecret: gloas-0f32b22f731e0d9892aecc76f10d2d042dfaa15f2d3f9a59307b9af43e0469e4
+        signIn:
+          resolvers:
+            # typically you would pick one of these
+            - resolver: usernameMatchingUserEntityName
+            - resolver: emailMatchingUserEntityProfileEmail
+            - resolver: emailLocalPartMatchingUserEntityName
+
+
+scaffolder:
+  # see https://backstage.io/docs/features/software-templates/configuration for software template options
+
+catalog:
+  rules:
+    - allow: [Domain,Component, System, API, Resource, Location, User, Group, Service]
+  locations:
+    # Local example data, file locations are relative to the backend process, typically `packages/backend`
+    - type: url
+      target: https://github.com/ignaciylipm/yelb-catalog/blob/main/catalog-info.yaml
+      rule:
+        - allow: [Domain,Component, System, API, Resource, Location, User, Group, Service]
+
+permission:
+  enabled: true
+  permissionedPlugins:
+    - catalog
+    - scaffolder
+  rbac:
+    defaultPolicy:
+      $include: ./default-deny-rbac-policy.yaml
+    #fallbackPolicy:
+    #  $include: ./fallback-rbac-policy.yaml
+    authorizedUsers:
+      - group:default/admins
+      - user:default/ignaciylipm
+       
+spotify:
+  licenseKey: FD6129-9F16C5-53646C-D4E8F1-1D3407-V3
+
+
